@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ino.web.commonCode.mapper">
+	
+	<select id="selectMasterCodeList" resultType="java.util.HashMap">
+		SELECT CODE
+		     , CODE_NAME
+		     , USE_YN
+		  FROM MASTERCODE
+	</select>
+	
+	<!-- searchType 리스트 나타내는 쿼리문 <1. 쿼리문 작성> 인풋 박스 셀렉트옵션 리스트 가져오기  => <2. 프리보드컨트롤러 가기 > -->
+	<select id="selectCommonCodeList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select a2.CODE , a1.CODE_NAME, a2.DECODE, a2.DECODE_NAME, a2.USE_YN	   
+		  from MASTERCODE a1, DETAILCODE a2
+		 where a1.CODE = a2.CODE
+		   and a1.CODE = #{code}
+		   and a2.USE_YN = 'Y'
+		  ORDER BY a2.DECODE_NAME DESC
+	</select>
+	
+	<!-- 공통코드 상세보기 -->
+	<select id="detailCommonCodeList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT * 
+		FROM DETAILCODE 
+		WHERE CODE = #{code}
+		ORDER BY DECODE ASC
+	</select>
+	
+	<!-- 공통코드 중복 체크하기 -->
+	<select id="count" resultType="int" parameterType="java.util.HashMap">
+		SELECT COUNT(*) 
+		FROM DETAILCODE 
+		WHERE DECODE IN 
+		<foreach collection="insertList" item="nRow" index="index" separator="," open="(" close=")">
+		#{nRow.detailCode}
+		</foreach>
+	</select>
+	
+	<!-- 공통코드 추가 -->
+	<insert id="insertCommonCodeList" parameterType="java.util.HashMap" >
+	<foreach collection="insertList" item="nRow" index="index" separator="" open="INSERT ALL" close="SELECT * FROM DUAL">
+		INTO DETAILCODE (CODE, DECODE, DECODE_NAME, USE_YN)
+		VALUES(#{nRow.masterCode}, #{nRow.detailCode}, #{nRow.detailCodeName} , #{nRow.radioCheck})
+		</foreach>
+	</insert>
+
+	<!-- 공통코드 수정하기 -->
+	<update id="ModifyCommonCodeList" parameterType="java.util.HashMap">
+	<foreach collection="modifyList" item="nRow" index="index" separator=";" open="DECLARE BEGIN" close="; END;">
+		UPDATE DETAILCODE
+		SET
+		DECODE_NAME = #{nRow.detailCodeName}, 
+		USE_YN = #{nRow.radioCheck}
+		WHERE DECODE = #{nRow.detailCode}
+	</foreach>
+	</update>
+	
+	<!-- 공통코드 삭제하기 -->
+	<update id="DeleteCommonCodeList" parameterType="java.util.HashMap">
+		DELETE FROM DETAILCODE
+		WHERE DECODE IN 
+		<foreach collection="deleteList" item="nRow" open="(" close=")" separator=",">
+        #{nRow.detailCode}
+    	</foreach>
+	</update>
+
+</mapper>

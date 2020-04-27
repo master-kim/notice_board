@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ino.web.freeBoard.mapper.FreeBoardMapper">
+	
+	<!-- [5. mapper]게시판 메인 리스트 가져오기 -->
+	<select id="freeBoardGetList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+      	SELECT *
+     	 FROM
+     	 (
+      	select ROW_NUMBER() OVER(ORDER BY num) AS rnum , 
+      	NUM,
+      	TITLE, 
+      	NAME, 
+      	TO_CHAR(REGDATE, 'YYYY/MM/DD') AS REGDATE, 
+      	CONTENT
+     	from FREEBOARD
+     	where 1=1 
+       	<if test="searchType == 'DECODE002'">
+     	 AND  NUM LIKE '%'||#{keyword} ||'%' 
+      	</if>
+     	<if test="searchType == 'DECODE001'">
+     	 AND   TITLE LIKE '%'||#{keyword} ||'%' 
+      	</if>
+      	<if test="startDate != null and startDate != ''">
+      	 AND TO_CHAR(REGDATE,'YYYYMMDD') BETWEEN #{startDate} and #{endDate}
+       	</if>
+      	) A
+      	WHERE A.rnum BETWEEN #{start} AND #{end} 
+	
+     	ORDER BY LPAD( NUM, 5 ) DESC
+	</select>
+
+	<!-- 페이지 네이션을 위한 글 최대 갯수 -->
+	<select id="freeBoardNewNum" resultType="int" parameterType="java.util.HashMap">
+		SELECT COUNT(NUM)
+		FROM FREEBOARD
+		<!-- (3.) 쿼리문 작성 where 1:1 은 무조건 참 이다 [단일테이블에서만 사용] => (4.) 컨트롤러 가기 -->
+		WHERE 1 = 1
+		<if test="searchType == 'DECODE002'">
+			AND NUM LIKE '%'||#{keyword} ||'%' 
+		</if>
+		<if test="searchType == 'DECODE001'">
+			AND TITLE LIKE '%' || #{keyword} || '%'
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND TO_CHAR(REGDATE, 'YYYYMMDD') BETWEEN #{startDate} and #{endDate}
+		</if>
+	</select>
+	
+	
+	<!-- 게시판 리스트 글 상세보기 -->
+	<select id="freeBoardDetailByNum" resultType="java.util.HashMap" parameterType="int">
+		SELECT NUM, TITLE, NAME, TO_CHAR(REGDATE,'YYYY/MM/DD') REGDATE, CONTENT FROM FREEBOARD
+		WHERE NUM=#{num}
+	</select>
+	
+	<!--  게시판 글쓰기 버튼 누르면 DB에 글 삽입 -->
+	<insert id="freeBoardInsertPro" parameterType="java.util.HashMap">
+		INSERT INTO FREEBOARD(NUM, TITLE, NAME, REGDATE, CONTENT)
+		VALUES( FREEBOARDNUM_SEQ.NEXTVAL, #{title}, #{name}, SYSDATE, #{content})
+	</insert>
+
+	<!-- 글쓰기 수정버튼 누를 시 실행되는 쿼리 문 -->
+	<update id="freeBoardModify" parameterType="java.util.HashMap">
+		UPDATE FREEBOARD
+		SET
+		TITLE = #{title}
+		, CONTENT = #{content}
+		WHERE NUM = #{num}
+	</update>
+	
+	<!-- 글쓰기 삭제 시 이용되는 쿼리문 -->
+	<update id="freeBoardDelete" parameterType="java.util.HashMap">
+		DELETE FROM FREEBOARD
+		WHERE NUM
+		= #{num}
+	</update>
+	
+	
+</mapper>

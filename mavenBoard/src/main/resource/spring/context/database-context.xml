@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<!-- dataSource -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl" />
+		<property name="username" value="kim" />
+		<property name="password" value="rladygks" />
+	</bean>
+
+<!-- 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> -->
+<!-- 		<property name="driverClassName" value="com.mysql.jdbc.Driver" /> -->
+<!-- 		<property name="url" value="jdbc:mysql://localhost:3306/mavenboard" /> -->
+<!-- 		<property name="username" value="mavenuser" /> -->
+<!-- 		<property name="password" value="mavenuser" /> -->
+<!-- 	</bean> -->
+
+	<!-- mybatis connect -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath*:ino/**/*Mapper.xml" />
+		<property name="configLocation" value="classpath:/spring/mybatis/sqlMapConfig.xml" />
+		<!-- <property name="configLocation" value="sqlMapConfig.xml" /> -->
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean"> -->
+	<!-- <property name="mapperInterface" value="ino.web.freeBoard.mapper.FreeBoardMapper" 
+		/> -->
+	<!-- <property name="sqlSessionFactory" ref="sqlSessionFactory" /> -->
+	<!-- </bean> -->
+	
+	<!-- 트랜잭션 매니저 설정 의존성주입(Autowired)-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+     <property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 트랜잭션 매니저 설정 어노테이션(Transactional)-->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	
+
+</beans>

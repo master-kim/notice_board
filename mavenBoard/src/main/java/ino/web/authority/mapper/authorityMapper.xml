@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ino.web.authority.mapper">
+	<!-- 그룹테이블 맵퍼 -->
+	<select id="selectAuthorityList" resultType="java.util.HashMap">
+		SELECT *
+		  FROM GROUPTABLE
+	</select>
+	
+	<!-- 객체테이블 전체 조회 맵퍼 -->
+	<select id="objectList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM OBJECTTABLE
+		ORDER BY OBJECT_ID
+	</select>
+	
+	<!-- 매핑테이블 맵퍼 -->
+	<select id="mappingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM MAPPINGTABLE
+		WHERE GROUP_ID = #{groupId}
+	</select>
+	
+	<!-- 권한 등록 맵퍼 -->
+	<insert id="insertList" parameterType="java.util.HashMap">
+        <foreach collection="insertList" item="nRow" separator=" " open="INSERT ALL" close=" select * from dual" > 
+        INTO MAPPINGTABLE(GROUP_ID , OBJECT_ID)
+        VALUES (#{nRow.GROUP_ID},#{nRow.OBJECT_ID})
+        </foreach>
+    </insert>
+    
+    <!-- 권한 등록 삭제 맵퍼 -->
+    <delete id="deleteList" parameterType="java.util.HashMap">
+		DELETE 
+		FROM MAPPINGTABLE 
+		WHERE
+		<foreach collection="deleteList"  item="nRow" open="(" close=")" separator="OR" >
+ 		GROUP_ID = #{nRow.GROUP_ID} AND OBJECT_ID= #{nRow.OBJECT_ID}
+		</foreach>
+	</delete>
+	
+</mapper>
