@@ -9,6 +9,6 @@
 <body>
 
 <br/><br/><br/><br/>
-	Copyright inosys jmw
+	Copyright masterKim
 </body>
 </html>
