@@ -15,6 +15,7 @@
  - DB 및 DB 툴  : Oracle , OracleDev
 
 당시 프로젝트 상세 내용
+
  -> Spring legacy project를 통해서 자유게시판(CRUD)을 만드는 프로젝트 진행
  
  -> JAVA 와 DB 연결하여 데이터를 담는 클래스를 선언하여 담는 과정은 비교적 쉬웠음
